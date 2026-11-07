@@ -1,5 +1,5 @@
 // Keeps the Grimoire quick to open and usable on a weak connection. Same-site files only.
-const V = "grimoire-v1";
+const V = "grimoire-v2";
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", e => {
@@ -14,6 +14,6 @@ self.addEventListener("fetch", e => {
   }
   if (req.mode === "navigate"){
     // the page itself: always try the network first so updates show up, fall back to the saved copy offline
-    e.respondWith(fetch(req).then(r => { const cp = r.clone(); caches.open(V).then(c => c.put(req, cp)); return r; }).catch(() => caches.match(req, {ignoreSearch:true})));
+    e.respondWith(fetch(req, {cache: "no-cache"}).then(r => { const cp = r.clone(); caches.open(V).then(c => c.put(req, cp)); return r; }).catch(() => caches.match(req, {ignoreSearch:true})));
   }
 });
